@@ -17,7 +17,7 @@ WantedBy=multi-user.target
 
 import os,json
 from flask import *
-import subprocess, random, re,sys
+import subprocess, random, re,sys, pexpect
 std = subprocess.PIPE
 app = Flask(__name__)
 auth = sys.argv[2]
@@ -35,17 +35,17 @@ def convert_size(size_bytes):
 
 @app.route("/trial-ssh")
 def trial_ssh():
-	if request.headers.get("AUTH_KEY") == auth:
+	if request.args.get("apiKey") == auth:
 		trial = subprocess.check_output("echo trial`</dev/urandom tr -dc X-Z0-9 | head -c4`", shell=True).decode("ascii")
 		subprocess.check_output(f'useradd -e `date -d "1 days" +"%Y-%m-%d"` -s /bin/false -M {trial}', shell=True)
 		subprocess.check_output(f'usermod --password $(echo 1 | openssl passwd -1 -stdin) {trial}', shell=True)
 		return trial + ":" + "1"
 	else:
-		return redirect("http://t.me/XolPanel")
+		return redirect("http://t.me/Putri24V")
 
-@app.route("/adduser/exp")
+@app.route("/adduser/ssh")
 def add_user_exp():
-	if request.headers.get("AUTH_KEY") == auth:
+	if request.args.get("apiKey") == auth:
 		u = request.args.get("user")
 		p = request.args.get("password")
 		exp = request.args.get("exp")
@@ -57,11 +57,29 @@ def add_user_exp():
 		else:
 			return "success"
 	else:
-		return redirect("http://t.me/XolPanel")
+		return redirect("http://t.me/Putri24V")
+
+@app.route("/adduser/tr")
+def add_user_exp():
+	if request.args.get("apiKey") == auth:
+		u = request.args.get("user")
+		exp = request.args.get("exp")
+		try:
+			tr = pexpect.spawn('/bin/bash /usr/bin/addtrojan')
+			tr.expect('Password :')
+			tr.sendline(u)
+			tr.expect('Expired (Days) :')
+			tr.sendline(exp)
+		except:
+			return "error"
+		else:
+			return tr.interact()
+	else:
+		return redirect("http://t.me/Putri24V")
 
 @app.route("/deluser")
 def deluser():
-	if request.headers.get("AUTH_KEY") == auth:
+	if request.args.get("apiKey") == auth:
 		u = request.args.get("user")
 		try:
 			subprocess.check_output(f'userdel -f {u}', shell=True)
@@ -70,6 +88,6 @@ def deluser():
 		else:
 			return "success"
 	else:
-		return redirect("http://t.me/XolPanel")
+		return redirect("http://t.me/Putri24V")
 
 app.run(host=sys.argv[1], port=6969)
