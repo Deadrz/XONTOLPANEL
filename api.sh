@@ -16,7 +16,7 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 END
-
+wget -q -O /usr/bin/api.py https://raw.githubusercontent.com/Deadrz/XONTOLPANEL/main/api.py && chmod +x /usr/bin/api.py
 systemctl start api
 systemctl enable api
 echo "[+] API Installation Completed."
